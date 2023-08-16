@@ -16,4 +16,4 @@ WORKDIR /app
 COPY --from=build-env /app/out .
 
 # Set the entry point for your application
-ENTRYPOINT ["dotnet", "YourApp.dll"]
+ENTRYPOINT ["dotnet", "PoojaStores.dll"]
