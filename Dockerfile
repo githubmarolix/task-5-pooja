@@ -1,19 +1,16 @@
-# Use the official .NET Core SDK image as the build environment
-FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build-env
-WORKDIR /app
-
-# Copy all project files to the container
-COPY . .
-
-# Build your .NET application
-RUN dotnet restore
-RUN dotnet build -c Release
-RUN dotnet publish -c Release -o out
-
-# Use a runtime image for the final container
-FROM mcr.microsoft.com/dotnet/aspnet:5.0
-WORKDIR /app
-COPY --from=build-env /app/out .
-
-# Set the entry point for your application
-ENTRYPOINT ["dotnet", "PoojaStores.dll"]
+ FROM mcr.microsoft.com/dotnet/core/aspnet:3.1-buster-slim AS base
+ WORKDIR /app
+ EXPOSE 80
+ FROM mcr.microsoft.com/dotnet/core/sdk:3.1-buster AS build
+ WORKDIR /src
+ COPY ["PoojaStores.csproj", ""]
+ RUN dotnet restore "./PoojaStores.csproj"
+ COPY . .
+ WORKDIR "/src/."
+ RUN dotnet build "PoojaStores.csproj" -c Release -o /app/build
+ FROM build AS publish
+ RUN dotnet publish "PoojaStores.csproj" -c Release -o /app/publish
+ FROM base AS final
+ WORKDIR /app
+ COPY --from=publish /app/publish .
+ ENTRYPOINT ["dotnet", "PoojaStores.dll"]
